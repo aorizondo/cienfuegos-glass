@@ -1,12 +1,13 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { useLang } from '@/lib/LanguageContext';
 
 const PAGE_SIZE = 12;
 
-const allImages = [
+export const allImages = [
   { src: '499997335_1276042277858018_1226764751213718351_n', alt: 'Frameless shower door installation Miami', category: 'frameless' },
   { src: '489498323_1234081312054115_6281009152648013009_n', alt: 'Modern shower enclosure Coral Gables', category: 'frameless' },
   { src: '73515704_2415493132037765_5372763294249517056_n', alt: 'Custom glass shower Miami', category: 'frameless' },
@@ -62,17 +63,10 @@ const allImages = [
   { src: '492556558_9464004067028638_6034759634657359797_n', alt: 'Commercial glass solution', category: 'commercial' },
 ];
 
-export { allImages };
-
-const filterOptions = [
-  { label: 'All Projects', value: 'all' },
-  { label: 'Frameless', value: 'frameless' },
-  { label: 'Semi-Frameless', value: 'semi-frameless' },
-  { label: 'Walk-In', value: 'walk-in' },
-  { label: 'Commercial', value: 'commercial' },
-];
-
 const Gallery = () => {
+  const { t } = useLang();
+  const { gallery } = t;
+
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [selectedImage, setSelectedImage] = useState<number | null>(null);
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
@@ -89,7 +83,6 @@ const Gallery = () => {
     setVisibleCount(PAGE_SIZE);
   };
 
-  // Keyboard navigation for lightbox
   useEffect(() => {
     if (selectedImage === null) return;
     const handler = (e: KeyboardEvent) => {
@@ -101,13 +94,8 @@ const Gallery = () => {
     return () => window.removeEventListener('keydown', handler);
   }, [selectedImage, filteredImages.length]);
 
-  // Lock body scroll when lightbox is open
   useEffect(() => {
-    if (selectedImage !== null) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
+    document.body.style.overflow = selectedImage !== null ? 'hidden' : '';
     return () => { document.body.style.overflow = ''; };
   }, [selectedImage]);
 
@@ -123,14 +111,12 @@ const Gallery = () => {
           className="text-center mb-14"
         >
           <p className="text-accent text-sm font-light tracking-widest uppercase mb-4">
-            Our Work
+            {gallery.sectionLabel}
           </p>
           <h2 className="font-display text-4xl md:text-6xl font-bold text-light mb-6">
-            Gallery of Excellence
+            {gallery.title}
           </h2>
-          <p className="text-text text-lg max-w-2xl mx-auto">
-            Explore our portfolio of premium shower doors and glass installations across Miami.
-          </p>
+          <p className="text-text text-lg max-w-2xl mx-auto">{gallery.sub}</p>
         </motion.div>
 
         {/* Filter Buttons */}
@@ -141,7 +127,7 @@ const Gallery = () => {
           transition={{ duration: 0.5, delay: 0.2 }}
           className="flex flex-wrap justify-center gap-3 mb-12"
         >
-          {filterOptions.map((filter) => (
+          {gallery.filters.map((filter) => (
             <button
               key={filter.value}
               onClick={() => handleFilterChange(filter.value)}
@@ -156,11 +142,10 @@ const Gallery = () => {
           ))}
         </motion.div>
 
-        {/* Photo Grid — variable row heights for visual interest */}
+        {/* Photo Grid */}
         <motion.div layout className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
           <AnimatePresence mode="popLayout">
             {visibleImages.map((image, index) => {
-              // Every 5th image is large (spans 2 cols on md+)
               const isLarge = index % 5 === 0;
               return (
                 <motion.div
@@ -183,17 +168,10 @@ const Gallery = () => {
                     decoding="async"
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
                   />
-                  {/* Hover overlay */}
                   <div className="absolute inset-0 bg-gradient-to-t from-dark via-dark/30 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex flex-col justify-end p-4 md:p-6">
-                    <motion.p
-                      initial={{ y: 10 }}
-                      className="text-light text-sm font-medium"
-                    >
-                      {image.alt}
-                    </motion.p>
+                    <p className="text-light text-sm font-medium">{image.alt}</p>
                     <p className="text-accent/80 text-xs mt-1 capitalize">{image.category}</p>
                   </div>
-                  {/* Subtle border glow on hover */}
                   <div className="absolute inset-0 rounded-lg border-2 border-transparent group-hover:border-accent/40 transition-colors duration-500 pointer-events-none" />
                 </motion.div>
               );
@@ -209,13 +187,13 @@ const Gallery = () => {
             className="flex flex-col items-center mt-12 gap-3"
           >
             <p className="text-text/60 text-sm">
-              {visibleImages.length} of {filteredImages.length} projects
+              {gallery.showing(visibleImages.length, filteredImages.length)}
             </p>
             <button
               onClick={() => setVisibleCount(prev => prev + PAGE_SIZE)}
               className="group px-10 py-3.5 rounded-full bg-accent/10 border border-accent/30 text-accent hover:bg-accent hover:text-dark transition-all duration-300 font-semibold text-sm"
             >
-              View More Projects
+              {gallery.viewMore}
               <span className="inline-block ml-2 group-hover:translate-y-0.5 transition-transform">↓</span>
             </button>
           </motion.div>
@@ -233,15 +211,9 @@ const Gallery = () => {
             className="fixed inset-0 z-50 bg-dark/98 backdrop-blur-md flex items-center justify-center"
             onClick={() => setSelectedImage(null)}
           >
-            {/* Close */}
-            <button
-              onClick={() => setSelectedImage(null)}
-              className="absolute top-6 right-6 text-text/60 hover:text-light transition-colors z-10"
-            >
+            <button onClick={() => setSelectedImage(null)} className="absolute top-6 right-6 text-text/60 hover:text-light transition-colors z-10">
               <X size={28} />
             </button>
-
-            {/* Image */}
             <motion.div
               key={filteredImages[selectedImage].src}
               initial={{ opacity: 0, scale: 0.9 }}
@@ -258,37 +230,21 @@ const Gallery = () => {
                 className="max-w-full max-h-full object-contain rounded-lg"
               />
             </motion.div>
-
-            {/* Prev */}
             <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setSelectedImage(prev => prev !== null ? (prev - 1 + filteredImages.length) % filteredImages.length : null);
-              }}
+              onClick={(e) => { e.stopPropagation(); setSelectedImage(prev => prev !== null ? (prev - 1 + filteredImages.length) % filteredImages.length : null); }}
               className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 text-text/60 hover:text-light bg-dark/60 hover:bg-dark/80 p-3 rounded-full transition-all"
             >
               <ChevronLeft size={28} />
             </button>
-
-            {/* Next */}
             <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setSelectedImage(prev => prev !== null ? (prev + 1) % filteredImages.length : null);
-              }}
+              onClick={(e) => { e.stopPropagation(); setSelectedImage(prev => prev !== null ? (prev + 1) % filteredImages.length : null); }}
               className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 text-text/60 hover:text-light bg-dark/60 hover:bg-dark/80 p-3 rounded-full transition-all"
             >
               <ChevronRight size={28} />
             </button>
-
-            {/* Counter + Caption */}
             <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-center">
-              <p className="text-light text-sm font-medium mb-1">
-                {filteredImages[selectedImage].alt}
-              </p>
-              <p className="text-text/50 text-xs">
-                {selectedImage + 1} / {filteredImages.length}
-              </p>
+              <p className="text-light text-sm font-medium mb-1">{filteredImages[selectedImage].alt}</p>
+              <p className="text-text/50 text-xs">{selectedImage + 1} / {filteredImages.length}</p>
             </div>
           </motion.div>
         )}

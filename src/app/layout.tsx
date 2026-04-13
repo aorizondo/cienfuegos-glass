@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import CookieBanner from '@/components/CookieBanner';
+import { LanguageProvider } from '@/lib/LanguageContext';
 
 const title = 'Cienfuegos Glass | Frameless Shower Doors Miami FL';
 const description =
@@ -65,8 +66,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        {children}
-        <CookieBanner />
+        <LanguageProvider>
+          {children}
+          <CookieBanner />
 
         {/* JSON-LD LocalBusiness Schema */}
         <script
@@ -105,6 +107,7 @@ export default function RootLayout({
             }),
           }}
         />
+        </LanguageProvider>
       </body>
     </html>
   );

@@ -3,6 +3,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { useLang } from '@/lib/LanguageContext';
 
 const heroImages = [
   '/fotos/full/508415836_1295910482537864_7672495380146623795_n.webp',
@@ -13,6 +14,7 @@ const heroImages = [
 ];
 
 const Hero = () => {
+  const { t } = useLang();
   const [currentBg, setCurrentBg] = useState(0);
 
   useEffect(() => {
@@ -51,45 +53,41 @@ const Hero = () => {
 
       {/* Content */}
       <div className="relative z-10 text-center max-w-4xl px-4 md:px-8">
-        {/* Tagline */}
         <motion.p
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.3 }}
           className="text-gold text-sm md:text-base font-light tracking-[0.3em] uppercase mb-6"
         >
-          Miami&apos;s Premium Glass Specialists
+          {t.hero.tagline}
         </motion.p>
 
-        {/* Main Headline */}
         <motion.h1
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.5 }}
           className="font-display text-5xl md:text-7xl lg:text-8xl font-bold text-light mb-8 leading-[1.1]"
         >
-          Shower Glass Doors{' '}
+          {t.hero.headline1}{' '}
           <motion.span
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.8 }}
             className="block text-accent italic"
           >
-            Built to Perfection
+            {t.hero.headline2}
           </motion.span>
         </motion.h1>
 
-        {/* Subheadline */}
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8, delay: 1 }}
           className="text-text/80 text-lg md:text-xl mb-10 font-light tracking-wide"
         >
-          Custom frameless enclosures &bull; Professional installation &bull; 10+ years of excellence
+          {t.hero.sub}
         </motion.p>
 
-        {/* CTA Buttons */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -100,7 +98,7 @@ const Hero = () => {
             href="#contact"
             className="group relative px-10 py-4 rounded-full bg-gold text-dark font-bold text-lg overflow-hidden transition-transform hover:scale-105 active:scale-95"
           >
-            <span className="relative z-10">Get Free Estimate</span>
+            <span className="relative z-10">{t.hero.cta1}</span>
             <span className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
           </a>
           <a
@@ -109,7 +107,7 @@ const Hero = () => {
             rel="noopener noreferrer"
             className="px-10 py-4 rounded-full border-2 border-accent/60 text-accent hover:border-accent hover:bg-accent/10 transition-all duration-300 font-semibold text-lg hover:scale-105 active:scale-95"
           >
-            Chat on WhatsApp
+            {t.hero.cta2}
           </a>
         </motion.div>
       </div>
