@@ -1,5 +1,6 @@
 import Navbar from '@/components/Navbar';
 import Hero from '@/components/Hero';
+import PhotoBanner from '@/components/PhotoBanner';
 import About from '@/components/About';
 import Services from '@/components/Services';
 import Gallery from '@/components/Gallery';
@@ -13,6 +14,7 @@ export default function Home() {
     <main className="bg-dark">
       <Navbar />
       <Hero />
+      <PhotoBanner />
       <About />
       <Services />
       <Gallery />
