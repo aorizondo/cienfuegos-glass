@@ -47,19 +47,33 @@ cienfuegos-glass/
 
 ## Getting Started
 
-### Development
+### Local Development
 
-1. Install dependencies:
+1. Clone the repository:
+```bash
+git clone https://github.com/aorizondo/cienfuegos-glass.git
+cd cienfuegos-glass
+```
+
+2. Install dependencies:
 ```bash
 npm install
 ```
 
-2. Run the development server:
+3. Copy environment variables:
+```bash
+cp .env.example .env.local
+# Edit .env.local if needed
+```
+
+4. Run the development server:
 ```bash
 npm run dev
 ```
 
-3. Open [http://localhost:3000](http://localhost:3000) in your browser
+5. Open [http://localhost:3000](http://localhost:3000) in your browser
+
+The application will auto-reload as you make changes.
 
 ### Production Build
 
@@ -67,6 +81,12 @@ npm run dev
 npm run build
 npm start
 ```
+
+The build creates a standalone Next.js application optimized for production.
+
+## Deployment
+
+See [DEPLOYMENT.md](./DEPLOYMENT.md) for complete EasyPanel deployment instructions.
 
 ## Docker Deployment (EasyPanel)
 
