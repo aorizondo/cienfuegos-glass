@@ -1,15 +1,18 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
-import { useState, useRef, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { useState, useRef, useEffect, useCallback } from 'react';
+import { ChevronLeft, ChevronRight, X, Plus } from 'lucide-react';
+
+const PAGE_SIZE = 12;
 
 const Gallery = () => {
   const ref = useRef(null);
   const [inView, setInView] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [selectedImage, setSelectedImage] = useState<number | null>(null);
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
   useEffect(() => {
     const observer = new IntersectionObserver(([entry]) => {
@@ -87,6 +90,14 @@ const Gallery = () => {
     ? allImages
     : allImages.filter(img => img.category === selectedFilter);
 
+  const visibleImages = filteredImages.slice(0, visibleCount);
+  const hasMore = visibleCount < filteredImages.length;
+
+  const handleFilterChange = (filter: string) => {
+    setSelectedFilter(filter);
+    setVisibleCount(PAGE_SIZE);
+  };
+
   const filterOptions = [
     { label: 'All', value: 'all' },
     { label: 'Frameless', value: 'frameless' },
@@ -134,7 +145,7 @@ const Gallery = () => {
           {filterOptions.map((filter) => (
             <button
               key={filter.value}
-              onClick={() => setSelectedFilter(filter.value)}
+              onClick={() => handleFilterChange(filter.value)}
               className={`px-6 py-2 rounded-full font-semibold transition-all duration-300 ${
                 selectedFilter === filter.value
                   ? 'bg-gold text-dark'
@@ -151,29 +162,50 @@ const Gallery = () => {
           layout
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
         >
-          {filteredImages.map((image, index) => (
-            <motion.div
-              key={image.src}
-              layout
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.8 }}
-              transition={{ duration: 0.4 }}
-              onClick={() => setSelectedImage(index)}
-              className="relative h-64 rounded-lg overflow-hidden cursor-pointer group"
-            >
-              <Image
-                src={`/fotos/${image.src}`}
-                alt={image.alt}
-                fill
-                className="object-cover group-hover:scale-110 transition-transform duration-500"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-dark/80 via-dark/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
-                <p className="text-light text-sm font-light">{image.alt}</p>
-              </div>
-            </motion.div>
-          ))}
+          <AnimatePresence>
+            {visibleImages.map((image, index) => (
+              <motion.div
+                key={image.src}
+                layout
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.3 }}
+                onClick={() => setSelectedImage(index)}
+                className="relative h-64 rounded-lg overflow-hidden cursor-pointer group"
+              >
+                <Image
+                  src={`/fotos/${image.src}`}
+                  alt={image.alt}
+                  fill
+                  loading="lazy"
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                  quality={75}
+                  className="object-cover group-hover:scale-110 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-dark/80 via-dark/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
+                  <p className="text-light text-sm font-light">{image.alt}</p>
+                </div>
+              </motion.div>
+            ))}
+          </AnimatePresence>
         </motion.div>
+
+        {/* Load More Button */}
+        {hasMore && (
+          <div className="flex flex-col items-center mt-10 gap-2">
+            <p className="text-text text-sm">
+              Showing {visibleImages.length} of {filteredImages.length} photos
+            </p>
+            <button
+              onClick={() => setVisibleCount((prev) => prev + PAGE_SIZE)}
+              className="flex items-center gap-2 px-8 py-3 rounded-lg bg-primary/20 border border-accent/30 text-accent hover:border-accent/60 hover:bg-primary/30 transition-all duration-300 font-semibold"
+            >
+              <Plus size={18} />
+              Load More
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Lightbox Modal */}
@@ -194,6 +226,7 @@ const Gallery = () => {
             <Image
               src={`/fotos/${filteredImages[selectedImage].src}`}
               alt={filteredImages[selectedImage].alt}
+              sizes="(max-width: 1024px) 100vw, 80vw"
               fill
               className="object-contain"
               quality={95}
